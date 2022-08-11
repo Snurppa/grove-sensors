@@ -5,7 +5,7 @@
  
 #define B  4275               // B value of the thermistor
 #define R0 100000            // R0 = 100k
-#define SENSOR A0     // Grove - Temperature Sensor connect to A5
+#define SENSOR A0     // Grove - Temperature Sensor connect to A0 in Seeeduino V4.2
  
  
 float temp_sensor_main()

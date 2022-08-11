@@ -1,4 +1,5 @@
 #define BASELINE_IS_STORED_FLAG  (0X55)
+#include <EEPROM.h>
 
 void array_to_u32(u32* value, u8* array) {
     (*value) = (*value) | (u32)array[0] << 24;
@@ -17,8 +18,8 @@ void u32_to_array(u32 value, u8* array) {
 }
 
 /*
-    Reset baseline per hour,store it in EEPROM;
-
+    Reset baseline per hour, store it in EEPROM;
+*/
 void  store_baseline(void) {
     static u32 i = 0;
     u32 j = 0;
@@ -29,27 +30,25 @@ void  store_baseline(void) {
     if (i == 3600) {
         i = 0;
         if (sgp_get_iaq_baseline(&iaq_baseline) != STATUS_OK) {
-            Serial.println("get baseline failed!");
+            Serial.println(F("get baseline failed!"));
         } else {
             Serial.println(iaq_baseline, HEX);
-            Serial.println("get baseline");
+            Serial.println(F("get baseline"));
             u32_to_array(iaq_baseline, value_array);
             for (j = 0; j < 4; j++) {
                 EEPROM.write(j, value_array[j]);
                 Serial.print(value_array[j]);
-                Serial.println("...");
+                Serial.println(F("..."));
             }
             EEPROM.write(j, BASELINE_IS_STORED_FLAG);
         }
     }
-    delay(LOOP_TIME_INTERVAL_MS);
-}*/
+}
 
 /*  Read baseline from EEPROM and set it.If there is no value in EEPROM,retrun .
     Another situation: When the baseline record in EEPROM is older than seven days,Discard it and return!!
 
 */
-/*
 void set_baseline(void) {
     u32 i = 0;
     u8 baseline[5] = {0};
@@ -66,7 +65,7 @@ void set_baseline(void) {
     array_to_u32(&baseline_value, baseline);
     sgp_set_iaq_baseline(baseline_value);
     Serial.println(baseline_value, HEX);
-}*/
+}
 
 void gas_sensor_setup() {
     s16 err;
@@ -87,9 +86,9 @@ void gas_sensor_setup() {
         Serial.println(F("error reading signals"));
     }
     
-    err = sgp_iaq_init(); // comment out when..
+    //err = sgp_iaq_init(); // comment out when..
     // when with baseline, use this and comment out above sgp_iaq_init
-    // set_baseline();
+     set_baseline();
 }
 
 void gas_sensor_main() {
@@ -107,5 +106,5 @@ void gas_sensor_main() {
     } else {
         Serial.println(F("error reading IAQ values\n"));
     }
-    // store_baseline();
+    store_baseline();
 }
